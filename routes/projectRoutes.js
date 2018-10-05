@@ -123,20 +123,17 @@ router.put('/:id', (req, res) => {
 		});
 	}
 
+	const id = req.params.id;
 	projectModel
-		.update({ name, description })
-		.then(updatedProject => {
-			if (!updatedProject) {
+		.update(id, { name, description })
+		.then(project => {
+			if (!project) {
 				console.log('\n=== NO PROJECT BY THAT ID ===\n\n');
 				return res
 					.status(404)
 					.json({ message: 'Project with the specified ID does not exist.' });
 			}
-			console.log(
-				`\n=== UPDATED PROJECT ===\n\n Project with id ${
-					req.params.id
-				} has been updated\n`
-			);
+			console.log('\n=== UPDATED PROJECT ===\n\n', project, '\n');
 			res.status(200).json({ message: 'Project was successfully updated.' });
 		})
 		.catch(err => {
@@ -147,8 +144,9 @@ router.put('/:id', (req, res) => {
 
 // delete project by id
 router.delete('/:id', (req, res) => {
+	const id = req.params.id;
 	projectModel
-		.remove(req.params.id)
+		.remove(id)
 		.then(removedProject => {
 			if (!removedProject) {
 				console.log(`\n=== NO PROJECT BY THAT ID ===\n\n`);
@@ -157,9 +155,7 @@ router.delete('/:id', (req, res) => {
 					.json({ message: 'Project with the specified ID does not exist.' });
 			}
 			console.log(
-				`\n=== DELETED PROJECT ===\n\n Project with id ${
-					req.params.id
-				} removed from db('projects')\n`
+				`\n=== DELETED PROJECT ===\n\n Project with id ${id} removed from database\n`
 			);
 			res.status(200).json({ message: 'Project was successfully deleted.' });
 		})

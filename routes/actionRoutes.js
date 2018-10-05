@@ -87,4 +87,67 @@ router.post('/', (req, res) => {
 		});
 });
 
+// update action by id
+router.put('/:id', (req, res) => {
+	const { description, notes } = req.body;
+	const updatedAction = { description, notes };
+	if (!description || !notes) {
+		console.log(
+			`\n=== PROJECT DESCRIPTION AND/OR DESCRIPTION NOT PROVIDED ===\n\n`
+		);
+		return res.status(400).json({
+			message: 'Please provide a description and notes for the project.'
+		});
+	}
+	if (description.length > 128) {
+		console.log(
+			`\n=== PROJECT DESCRIPTION EXCEEDED 128 CHARACTER LIMIT ===\n\n`
+		);
+		return res.status(400).json({
+			message: 'Project description cannot exceed 128 characters.'
+		});
+	}
+
+	const id = req.params.id;
+	actionModel
+		.update(id, updatedAction)
+		.then(action => {
+			if (!action) {
+				console.log('\n=== NO ACTION BY THAT ID ===\n\n');
+				return res.status(404).json({
+					message: 'The action with the specified ID does not exist.'
+				});
+			}
+			console.log('\n=== UPDATED ACTION: ===\n\n', action, '\n');
+			res.status(200).json({ message: 'Action was successfully updated.' });
+		})
+		.catch(err => {
+			console.log('\n=== SERVER ERROR ===\n\n', err);
+			res.status(500).json({ error: 'Action could not be modified.' });
+		});
+});
+
+// delete action by id
+router.delete('/:id', (req, res) => {
+	const id = req.params.id;
+	actionModel
+		.remove(id)
+		.then(removedAction => {
+			if (!removedAction) {
+				console.log(`\n=== NO ACTION BY THAT ID ===\n\n`);
+				return res
+					.status(404)
+					.json({ message: 'Action with the specified ID does not exist.' });
+			}
+			console.log(
+				`\n=== DELETED ACTION ===\n\n Action with id ${id} removed from database\n`
+			);
+			res.status(200).json({ message: 'Action was successfully deleted.' });
+		})
+		.catch(err => {
+			console.log('\n=== SERVER ERROR ===\n\n', err);
+			res.status(500).json({ error: 'Action could not be deleted' });
+		});
+});
+
 module.exports = router;

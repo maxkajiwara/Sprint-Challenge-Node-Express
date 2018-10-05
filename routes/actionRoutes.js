@@ -46,4 +46,45 @@ router.get('/:id', (req, res) => {
 		});
 });
 
+// add new action
+router.post('/', (req, res) => {
+	const { project_id, description, notes } = req.body;
+	const newAction = { project_id, description, notes };
+	if (!project_id) {
+		console.log(`\n=== PROJECT ID NOT PROVIDED ===\n\n`);
+		return res.status(400).json({
+			message: 'Please provide a valid project id.'
+		});
+	}
+	if (!description || !notes) {
+		console.log(
+			`\n=== PROJECT DESCRIPTION AND/OR DESCRIPTION NOT PROVIDED ===\n\n`
+		);
+		return res.status(400).json({
+			message: 'Please provide a description and notes for the project.'
+		});
+	}
+	if (description.length > 128) {
+		console.log(
+			`\n=== PROJECT DESCRIPTION EXCEEDED 128 CHARACTER LIMIT ===\n\n`
+		);
+		return res.status(400).json({
+			message: 'Project description cannot exceed 128 characters.'
+		});
+	}
+
+	actionModel
+		.insert(newAction)
+		.then(action => {
+			console.log('\n=== ADDED ACTION: ===\n\n', action, '\n');
+			res.status(201).json(action);
+		})
+		.catch(err => {
+			console.log('\n=== SERVER ERROR ===\n\n', err);
+			res.status(500).json({
+				error: 'There was an error while saving the action to the database'
+			});
+		});
+});
+
 module.exports = router;
